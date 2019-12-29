@@ -43,9 +43,10 @@
  *            	Process numbers of processes in the system image	     *
  *===========================================================================*/
 
-/* Kernel tasks. These all run in the same address space. */
+/* Kernel tasks. These all run in the same address space.
+ * 进程表中的插槽号，内核任务，这些都在相同的地址空间运行 */
 #define ASYNCM	((endpoint_t) -5) /* notifies about finished async sends */
-#define IDLE    ((endpoint_t) -4) /* runs when no one else can run */
+#define IDLE    ((endpoint_t) -4) /* runs when no one else can run 没有其他可以运行运行 */
 #define CLOCK  	((endpoint_t) -3) /* alarms and other clock functions */
 #define SYSTEM  ((endpoint_t) -2) /* request system functionality */
 #define KERNEL  ((endpoint_t) -1) /* pseudo-process for IPC and scheduling */
@@ -55,10 +56,10 @@
 #define MAX_NR_TASKS	1023
 #define NR_TASKS	  5 
 
-/* User-space processes, that is, device drivers, servers, and INIT. */
-#define PM_PROC_NR   ((endpoint_t) 0)	/* process manager */
-#define VFS_PROC_NR  ((endpoint_t) 1)	/* file system */
-#define RS_PROC_NR   ((endpoint_t) 2)  	/* reincarnation server */
+/* 用户空间进程 User-space processes, that is, device drivers, servers, and INIT. */
+#define PM_PROC_NR   ((endpoint_t) 0)	/* process manager 进程管理器 */
+#define VFS_PROC_NR  ((endpoint_t) 1)	/* file system 文件系统 */
+#define RS_PROC_NR   ((endpoint_t) 2)  	/* reincarnation server 再生服务器 */
 #define MEM_PROC_NR  ((endpoint_t) 3)  	/* memory driver (RAM disk, null, etc.) */
 #define SCHED_PROC_NR ((endpoint_t) 4)	/* scheduler */
 #define TTY_PROC_NR  ((endpoint_t) 5)	/* terminal (TTY) driver */
@@ -198,7 +199,8 @@
  *                  SYSTASK request types and field names                    *
  *===========================================================================*/
 
-/* System library calls are dispatched via a call vector, so be careful when 
+/* 系统调用，通过调用表分发。见kernel/system.c call_vec
+ * System library calls are dispatched via a call vector, so be careful when
  * modifying the system call numbers. The numbers here determine which call
  * is made from the call vector.
  */ 
@@ -801,10 +803,10 @@
 #define SCHEDULING_BASE	0xF00
 
 #define SCHEDULING_NO_QUANTUM	(SCHEDULING_BASE+1)
-#define SCHEDULING_START	(SCHEDULING_BASE+2)
-#define SCHEDULING_STOP		(SCHEDULING_BASE+3)
-#define SCHEDULING_SET_NICE	(SCHEDULING_BASE+4)
-#define SCHEDULING_INHERIT	(SCHEDULING_BASE+5)
+#define SCHEDULING_START	(SCHEDULING_BASE+2) /* 开始调度 */
+#define SCHEDULING_STOP		(SCHEDULING_BASE+3) /* 结束调度 */
+#define SCHEDULING_SET_NICE	(SCHEDULING_BASE+4) /* 设置nice 值调度 */
+#define SCHEDULING_INHERIT	(SCHEDULING_BASE+5) /* 调度继承 */
 
 /*===========================================================================*
  *              Messages for USB                                             *

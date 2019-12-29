@@ -9,7 +9,7 @@
 
 /* Masks and flags for system calls. */
 #define NON_BLOCKING    0x0080  /* do not block if target not ready */
-#define FROM_KERNEL     0x0100  /* message from kernel on behalf of a process */
+#define FROM_KERNEL     0x0100  /* message from kernel on behalf of a process 消息来自内核 */
 
 #define WILLRECEIVE(src_e,dst_ptr,m_src_v,m_src_p) \
 	((RTS_ISSET(dst_ptr, RTS_RECEIVING) && \

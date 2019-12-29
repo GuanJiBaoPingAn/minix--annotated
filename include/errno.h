@@ -40,7 +40,7 @@
 #define _ERRNO_H_
 
 #include <sys/cdefs.h>
-#include <sys/errno.h>
+#include <sys/errno.h> /* 具体的错误码定义 */
 #include <sys/featuretest.h>
 
 __BEGIN_DECLS

@@ -149,7 +149,7 @@
 #define __stub_fexecve
 #endif
 
-#include <machine/limits.h>
+#include <machine/limits.h> /* 不同平台，各类型的长度的限制，具体定义如 minix/sys/arch/i386/include/limits.h */
 
 #ifdef __CHAR_UNSIGNED__
 # define CHAR_MIN     0
@@ -159,6 +159,6 @@
 # define CHAR_MAX     SCHAR_MAX
 #endif
 
-#include <sys/syslimits.h>
+#include <sys/syslimits.h> /* 系统中的限制，如PID 最大数 */
 
 #endif /* !_LIMITS_H_ */

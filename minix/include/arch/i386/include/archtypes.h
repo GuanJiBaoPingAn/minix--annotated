@@ -7,7 +7,7 @@
 #include <machine/fpu.h>
 #include <sys/cdefs.h>
 
-struct segdesc_s {		/* segment descriptor for protected mode */
+struct segdesc_s {		/* 保护模式的段描述符 segment descriptor for protected mode */
   u16_t limit_low;
   u16_t base_low;
   u8_t base_middle;
@@ -29,7 +29,7 @@ struct desctableptr_s {
   u32_t base;
 } __attribute__((packed));
 
-typedef struct segframe {
+typedef struct segframe { /* 段帧 */
 	reg_t	p_cr3;		/* page table root */
 	u32_t	*p_cr3_v;
 	char	*fpu_state;

@@ -14,7 +14,7 @@
  * The code here is critical to make everything work and is important for the
  * overall performance of the system. A large fraction of the code deals with
  * list manipulation. To make this both easy to understand and fast to execute 
- * pointer pointers are used throughout the code. Pointer pointers prevent
+ * pointer pointers are used throughout the code. Pointer pointers prevent0
  * exceptions for the head or tail of a linked list. 
  *
  *  node_t *queue, *new_node;	// assume these as global variables
@@ -41,7 +41,7 @@
 
 #include <minix/syslib.h>
 
-/* Scheduling and message passing functions */
+/* Scheduling and message passing functions 调度和消息传递函数 */
 static void idle(void);
 /**
  * Made public for use in clock.c (for user-space scheduling)
@@ -60,7 +60,7 @@ static int try_one(endpoint_t receive_e, struct proc *src_ptr,
 static struct proc * pick_proc(void);
 static void enqueue_head(struct proc *rp);
 
-/* all idles share the same idle_priv structure */
+/* all idles share the same idle_priv structure 空闲的权限一致，共用一个结构体 */
 static struct priv idle_priv;
 
 static void set_idle_name(char * name, int n)
@@ -122,7 +122,8 @@ void proc_init(void)
 	struct priv *sp;
 	int i;
 
-	/* Clear the process table. Announce each slot as empty and set up
+	/* 清除进程表。初始化进程和权限
+	 * Clear the process table. Announce each slot as empty and set up
 	 * mappings for proc_addr() and proc_nr() macros. Do the same for the
 	 * table with privilege structures for the system processes. 
 	 */
@@ -177,7 +178,8 @@ static void idle(void)
 {
 	struct proc * p;
 
-	/* This function is called whenever there is no work to do.
+	/* 当没有工作时调用该函数。暂停CPU，并对暂停的时间进程计时（用于计算CPU 利用率）。
+	 * This function is called whenever there is no work to do.
 	 * Halt the CPU, and measure how many timestamp counter ticks are
 	 * spent not doing anything. This allows test setups to measure
 	 * the CPU utilization of certain workloads with high precision.
@@ -235,7 +237,8 @@ void vm_suspend(struct proc *caller, const struct proc *target,
         const vir_bytes linaddr, const vir_bytes len, const int type,
         const int writeflag)
 {
-        /* This range is not OK for this process. Set parameters
+        /* 调用者和被请求者都不能在RTS_VMREQUEST 的状态
+         * This range is not OK for this process. Set parameters
          * of the request and notify VM about the pending request.
          */
         assert(!RTS_ISSET(caller, RTS_VMREQUEST));
@@ -283,7 +286,7 @@ static void delivermsg(struct proc *rp)
                         rp->p_misc_flags |= MF_MSGFAILED;
                 }
         } else {
-                /* Indicate message has been delivered; address is 'used'. */
+                /* 表明消息传递成功 Indicate message has been delivered; address is 'used'. */
                 rp->p_delivermsg.m_source = NONE;
                 rp->p_misc_flags &= ~(MF_DELIVERMSG|MF_MSGFAILED);
 
@@ -313,7 +316,7 @@ void switch_to_user(void)
 	 */
 	if (proc_is_runnable(p))
 		goto check_misc_flags;
-	/*
+	/* 进程在处理misc flags 时变成不可运行，我们需要重新选择一个进程
 	 * if a process becomes not runnable while handling the misc flags, we
 	 * need to pick a new one here and start from scratch. Also if the
 	 * current process wasn't runnable, we pick a new one here
@@ -329,7 +332,7 @@ not_runnable_pick_new:
 		}
 	}
 
-	/*
+	/* 没有进程可以运行时，将当前进程设置为空闲，用于cpu 利用率审计
 	 * if we have no process to run, set IDLE as the current process for
 	 * time accounting and put the cpu in an idle state. After the next
 	 * timer interrupt the execution resumes here and we can pick another
@@ -357,10 +360,10 @@ check_misc_flags:
 		 MF_SC_DEFER | MF_SC_TRACE | MF_SC_ACTIVE)) {
 
 		assert(proc_is_runnable(p));
-		if (p->p_misc_flags & MF_KCALL_RESUME) {
+		if (p->p_misc_flags & MF_KCALL_RESUME) { /* 如果需要从系统调用中恢复则先进行恢复 */
 			kernel_call_resume(p);
 		}
-		else if (p->p_misc_flags & MF_DELIVERMSG) {
+		else if (p->p_misc_flags & MF_DELIVERMSG) { /* 需要传递消息则传递消息 */
 			TRACE(VF_SCHEDULING, printf("delivering to %s / %d\n",
 				p->p_name, p->p_endpoint););
 			delivermsg(p);
@@ -406,7 +409,7 @@ check_misc_flags:
 			break;
 		}
 
-		/*
+		/* 该进程可能不可运行。我们需要选择一个进程
 		 * the selected process might not be runnable anymore. We have
 		 * to checkit and schedule another one
 		 */
@@ -469,12 +472,12 @@ check_misc_flags:
 	 * restore_user_context() carries out the actual mode switch from kernel
 	 * to userspace. This function does not return
 	 */
-	restore_user_context(p);
+	restore_user_context(p); /* arch_system.c */
 	NOT_REACHABLE;
 }
 
 /*
- * handler for all synchronous IPC calls
+ * handler for all synchronous IPC calls 处理所有同步IPC 调用
  */
 static int do_sync_ipc(struct proc * caller_ptr, /* who made the call */
 			int call_nr,	/* system call number and flags */
@@ -485,7 +488,8 @@ static int do_sync_ipc(struct proc * caller_ptr, /* who made the call */
   int src_dst_p;				/* Process slot number */
   char *callname;
 
-  /* Check destination. RECEIVE is the only call that accepts ANY (in addition
+  /* 检查目标。只接受RECEIVE 的call_nr
+   * Check destination. RECEIVE is the only call that accepts ANY (in addition
    * to a real endpoint). The other calls (SEND, SENDREC, and NOTIFY) require an
    * endpoint to corresponds to a process. In addition, it is necessary to check
    * whether a process is allowed to send to a given destination.
@@ -567,7 +571,7 @@ static int do_sync_ipc(struct proc * caller_ptr, /* who made the call */
 
   switch(call_nr) {
   case SENDREC:
-	/* A flag is set so that notifications cannot interrupt SENDREC. */
+	/* 发送和接收时，设置为等待回复 A flag is set so that notifications cannot interrupt SENDREC. */
 	caller_ptr->p_misc_flags |= MF_REPLY_PEND;
 	/* fall through */
   case SEND:			
@@ -868,13 +872,15 @@ void unset_notify_pending(struct proc * caller, int src_p)
  *				mini_send				     * 
  *===========================================================================*/
 int mini_send(
-  register struct proc *caller_ptr,	/* who is trying to send a message? */
-  endpoint_t dst_e,			/* to whom is message being sent? */
-  message *m_ptr,			/* pointer to message buffer */
+  register struct proc *caller_ptr,	/* who is trying to send a message? 消息发送方 */
+  endpoint_t dst_e,			/* to whom is message being sent? 消息接收方 */
+  message *m_ptr,			/* pointer to message buffer 消息缓存指针 */
   const int flags
 )
 {
-/* Send a message from 'caller_ptr' to 'dst'. If 'dst' is blocked waiting
+/* 将消息从发送方发送到接收方。如果接收方正在阻塞等待该消息则复制消息给他并取消阻塞。如果
+ * 接收方没有在等待或在等待其他消息，则将消息发送方入队
+ * Send a message from 'caller_ptr' to 'dst'. If 'dst' is blocked waiting
  * for this message, copy the message to it and unblock 'dst'. If 'dst' is
  * not waiting at all, or is waiting for another source, queue 'caller_ptr'.
  */
@@ -884,12 +890,13 @@ int mini_send(
   dst_p = _ENDPOINT_P(dst_e);
   dst_ptr = proc_addr(dst_p);
 
-  if (RTS_ISSET(dst_ptr, RTS_NO_ENDPOINT))
+  if (RTS_ISSET(dst_ptr, RTS_NO_ENDPOINT)) /* 目标进程无法发送或接收消息 */
   {
 	return EDEADSRCDST;
   }
 
-  /* Check if 'dst' is blocked waiting for this message. The destination's 
+  /* 检查接收方是否在等待该消息
+   * Check if 'dst' is blocked waiting for this message. The destination's
    * RTS_SENDING flag may be set when its SENDREC call blocked while sending.  
    */
   if (WILLRECEIVE(caller_ptr->p_endpoint, dst_ptr, (vir_bytes)m_ptr, NULL)) {
@@ -969,7 +976,8 @@ static int mini_receive(struct proc * caller_ptr,
 			message * m_buff_usr, /* pointer to message buffer */
 			const int flags)
 {
-/* A process or task wants to get a message.  If a message is already queued,
+/* 进程或任务需要信息。如果消息已经入队，则获取消息并将发送进程取消阻塞。如果没有消息则阻塞进程。
+ * A process or task wants to get a message.  If a message is already queued,
  * acquire it and deblock the sender.  If no message from the desired source
  * is available block the caller.
  */
@@ -993,7 +1001,8 @@ static int mini_receive(struct proc * caller_ptr,
   }
 
 
-  /* Check to see if a message from desired source is already available.  The
+  /* 检查期望的消息是否有了。
+   * Check to see if a message from desired source is already available.  The
    * caller's RTS_SENDING flag may be set if SENDREC couldn't send. If it is
    * set, the process should be blocked.
    */
@@ -1596,7 +1605,8 @@ void enqueue(
   register struct proc *rp	/* this process is now runnable */
 )
 {
-/* Add 'rp' to one of the queues of runnable processes.  This function is 
+/* 该函数用于将给定rp 加入到调度队列。实际的调度车辆定义在sched() 和 pick_proc()
+ * Add 'rp' to one of the queues of runnable processes.  This function is
  * responsible for inserting a process into one of the scheduling queues. 
  * The mechanism is implemented here.   The actual scheduling policy is
  * defined in sched() and pick_proc().
@@ -1615,7 +1625,7 @@ void enqueue(
   rdy_tail = get_cpu_var(rp->p_cpu, run_q_tail);
 
   /* Now add the process to the queue. */
-  if (!rdy_head[q]) {		/* add to empty queue */
+  if (!rdy_head[q]) {		/* 该优先级的进程不存在 add to empty queue */
       rdy_head[q] = rdy_tail[q] = rp; 		/* create a new queue */
       rp->p_nextready = NULL;		/* mark new end */
   } 
@@ -1626,7 +1636,7 @@ void enqueue(
   }
 
   if (cpuid == rp->p_cpu) {
-	  /*
+	  /* 入队的进程优先级比现在正在运行的进行进程（可抢占）优先级高时进行抢占
 	   * enqueueing a process with a higher priority than the current one,
 	   * it gets preempted. The current process must be preemptible. Testing
 	   * the priority also makes sure that a process does not preempt itself
@@ -1639,7 +1649,7 @@ void enqueue(
 		  RTS_SET(p, RTS_PREEMPTED); /* calls dequeue() */
   }
 #ifdef CONFIG_SMP
-  /*
+  /* 如果进行在其他cpu 上入队，且该cpu 空闲则马上进行调度
    * if the process was enqueued on a different cpu and the cpu is idle, i.e.
    * the time is off, we need to wake up that cpu and let it schedule this new
    * process
@@ -1661,10 +1671,10 @@ void enqueue(
 /*===========================================================================*
  *				enqueue_head				     *
  *===========================================================================*/
-/*
+/* 将进程加入到队列头。当进程被抢占从运行队列中移出时，
  * put a process at the front of its run queue. It comes handy when a process is
  * preempted and removed from run queue to not to have a currently not-runnable
- * process on a run queue. We have to put this process back at the fron to be
+ * process on a run queue. We have to put this process back at the front to be
  * fair
  */
 static void enqueue_head(struct proc *rp)
@@ -1688,7 +1698,7 @@ static void enqueue_head(struct proc *rp)
   rdy_head = get_cpu_var(rp->p_cpu, run_q_head);
   rdy_tail = get_cpu_var(rp->p_cpu, run_q_tail);
 
-  /* Now add the process to the queue. */
+  /* Now add the process to the queue. 无论当前优先级的进程有无都直接加入到队列头 */
   if (!rdy_head[q]) {		/* add to empty queue */
 	rdy_head[q] = rdy_tail[q] = rp; 	/* create a new queue */
 	rp->p_nextready = NULL;			/* mark new end */
@@ -1716,7 +1726,8 @@ static void enqueue_head(struct proc *rp)
 void dequeue(struct proc *rp)
 /* this process is no longer runnable */
 {
-/* A process must be removed from the scheduling queues, for example, because
+/* 进程从队列中出队，如进程阻塞了。如果移除的是激活的进程，通过pick_proc() 选择一个进程
+ * A process must be removed from the scheduling queues, for example, because
  * it has blocked.  If the currently active process is removed, a new process
  * is picked to run by calling pick_proc().
  *
@@ -1738,7 +1749,8 @@ void dequeue(struct proc *rp)
 
   rdy_tail = get_cpu_var(rp->p_cpu, run_q_tail);
 
-  /* Now make sure that the process is not in its ready queue. Remove the 
+  /* 确保当前线程不在准备队列。如果在则移除。
+   * Now make sure that the process is not in its ready queue. Remove the
    * process if it is found. A process can be made unready even if it is not 
    * running by being sent a signal that kills it.
    */
@@ -1784,7 +1796,8 @@ void dequeue(struct proc *rp)
  *===========================================================================*/
 static struct proc * pick_proc(void)
 {
-/* Decide who to run now.  A new process is selected and returned.
+/* 选择一个进程运行。
+ * Decide who to run now.  A new process is selected and returned.
  * When a billable process is selected, record it in 'bill_ptr', so that the 
  * clock task can tell who to bill for system time.
  *
@@ -1794,7 +1807,8 @@ static struct proc * pick_proc(void)
   struct proc **rdy_head;
   int q;				/* iterate over queues */
 
-  /* Check each of the scheduling queues for ready processes. The number of
+  /* 从调度队列中安优先级找可运行的进程
+   * Check each of the scheduling queues for ready processes. The number of
    * queues is defined in proc.h, and priorities are set in the task table.
    * If there are no processes ready to run, return NULL.
    */

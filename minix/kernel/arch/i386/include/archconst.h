@@ -5,12 +5,12 @@
 #include <machine/interrupt.h>
 #include <machine/memory.h>
 
-/* Constants for protected mode. */
+/* 保护模式常量 Constants for protected mode. */
 
 /* Table sizes. */
-#define IDT_SIZE 256	/* the table is set to it's maximal size */
+#define IDT_SIZE 256	/* 中断描述符表大小 the table is set to it's maximal size */
 
-/* GDT layout (SYSENTER/SYSEXIT compliant) */
+/* GDT 全局描述符布局 GDT layout (SYSENTER/SYSEXIT compliant) */
 #define KERN_CS_INDEX        1
 #define KERN_DS_INDEX        2
 #define USER_CS_INDEX        3
@@ -163,13 +163,13 @@
 #define AMD_MSR_EFER		0xC0000080	/* extended features msr */
 #define AMD_MSR_STAR		0xC0000081	/* SYSCALL params msr */
 
-/* trap styles recorded on kernel entry and exit */
-#define KTS_NONE	1 /* invalid */
-#define KTS_INT_HARD	2 /* exception / hard interrupt */
-#define KTS_INT_ORIG	3 /* soft interrupt from libc */
-#define KTS_INT_UM	4 /* soft interrupt from usermapped code */
-#define KTS_FULLCONTEXT	5 /* must restore full context */
-#define KTS_SYSENTER	6 /* SYSENTER instruction (usermapped) */
-#define KTS_SYSCALL	7 /* SYSCALL instruction (usermapped) */
+/* trap styles recorded on kernel entry and exit 陷入类型 */
+#define KTS_NONE	1 /* invalid 无效 */
+#define KTS_INT_HARD	2 /* exception / hard interrupt 异常或硬中断 */
+#define KTS_INT_ORIG	3 /* soft interrupt from libc libc 的软中断 */
+#define KTS_INT_UM	4 /* soft interrupt from usermapped code usermapped 代码的软中断 */
+#define KTS_FULLCONTEXT	5 /* must restore full context 必须回复完整的上下文 */
+#define KTS_SYSENTER	6 /* SYSENTER instruction (usermapped) SYSENTER 指令 */
+#define KTS_SYSCALL	7 /* SYSCALL instruction (usermapped) SYSCALL 指令 */
 
 #endif /* _I386_ACONST_H */

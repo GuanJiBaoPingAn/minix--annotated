@@ -22,7 +22,8 @@
 
 #include <minix/sys_config.h>
 
-/* Number of slots in the process table for non-kernel processes. The number
+/* 非内核进程的在进程表中的插槽数。
+ * Number of slots in the process table for non-kernel processes. The number
  * of system processes defines how many processes with special privileges 
  * there can be. User processes share the same properties and count for one. 
  *
@@ -60,20 +61,21 @@
 /* Max. number of domains (protocol families) per socket driver */
 #define NR_DOMAIN	8
 
-/* Scheduling priorities. Values must start at zero (highest
+/* 调度优先级。值需从0 开始（最高优先级）并递增
+ * Scheduling priorities. Values must start at zero (highest
  * priority) and increment.
  */
-#define NR_SCHED_QUEUES   16	/* MUST equal minimum priority + 1 */
-#define TASK_Q		   0	/* highest, used for kernel tasks */
-#define MAX_USER_Q  	   0    /* highest priority for user processes */   
+#define NR_SCHED_QUEUES   16	/* 必须为最低优先级 + 1 MUST equal minimum priority + 1 */
+#define TASK_Q		   0	/* 最高优先级，用于内核任务 highest, used for kernel tasks */
+#define MAX_USER_Q  	   0    /* 用户进程最高优先级 highest priority for user processes */
 #define USER_Q  	  ((MIN_USER_Q - MAX_USER_Q) / 2 + MAX_USER_Q) /* default
-						(should correspond to nice 0) */
+						(should correspond to nice 0) 用户进程默认优先级 */
 #define MIN_USER_Q	  (NR_SCHED_QUEUES - 1)	/* minimum priority for user
-						   processes */
-/* default scheduling quanta */
+						   processes 用户进程的最小优先级 */
+/* default scheduling quanta 默认调度量 */
 #define USER_QUANTUM 200
 
-/* defualt user process cpu */
+/* defualt user process cpu 默认用户进程cpu */
 #define USER_DEFAULT_CPU	-1 /* use the default cpu or do not change the
 				      current one */
 

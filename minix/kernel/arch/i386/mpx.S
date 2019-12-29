@@ -451,12 +451,12 @@ ENTRY(restore_user_context_int)
         movw    %si, %fs
         movw    %si, %gs
 
-	/* Same for general-purpose registers. */
+	/* Same for general-purpose registers. 恢复储存的寄存器信息 */
 	RESTORE_GP_REGS(%ebp)
 
 	movl	BPREG(%ebp), %ebp
 
-	iret	/* continue process */
+	iret	/* continue process 继续执行进程 */
 
 /*===========================================================================*/
 /*				exception handlers			     */

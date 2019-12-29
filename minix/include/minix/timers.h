@@ -24,7 +24,9 @@
 
 typedef void (*tmr_func_t)(int arg);
 
-/* A minix_timer_t variable must be declare for each distinct timer to be used.
+/* 一个minix_timer_t 变量必须为每个计时器独立声明。计时器看守函数和过期时间由库函数tmrs_settimer 设置，
+ * 但参数不是，一般，计时器在回调函数中使用。单向链表
+ * A minix_timer_t variable must be declare for each distinct timer to be used.
  * The timers watchdog function and expiration time are automatically set
  * by the library function tmrs_settimer, but its argument is not.  In general,
  * the timer is in use when it has a callback function.
@@ -47,23 +49,27 @@ typedef struct minix_timer
 /* This value must be used only instead of a timer difference value. */
 #define TMR_NEVER		((clock_t)TMRDIFF_MAX + 1)
 
-/* These definitions can be used to set or get data from a timer variable. */
+/* 用于获取计时器的超时时间和是否设置了回调函数
+ * These definitions can be used to set or get data from a timer variable. */
 #define tmr_exp_time(tp)	((tp)->tmr_exp_time)
 #define tmr_is_set(tp)		((tp)->tmr_func != NULL)
 /*
+ * tmr_is_first(a,b) a 是否比b 早
  * tmr_is_first() returns TRUE iff the first given absolute time is sooner than
  * or equal to the second given time.
  */
 #define tmr_is_first(a,b)	((clock_t)(b) - (clock_t)(a) <= TMRDIFF_MAX)
 #define tmr_has_expired(tp,now)	tmr_is_first((tp)->tmr_exp_time, (now))
 
-/* Timers should be initialized once before they are being used. Be careful
+/* 初始化计时器
+ * Timers should be initialized once before they are being used. Be careful
  * not to reinitialize a timer that is in a list of timers, or the chain
  * will be broken.
  */
 #define tmr_inittimer(tp) (void)((tp)->tmr_func = NULL, (tp)->tmr_next = NULL)
 
-/* The following generic timer management functions are available. They
+/* 通用计时器操作函数
+ * The following generic timer management functions are available. They
  * can be used to operate on the lists of timers. Adding a timer to a list
  * automatically takes care of removing it.
  */

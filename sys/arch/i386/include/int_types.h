@@ -29,6 +29,7 @@
  * SUCH DAMAGE.
  *
  *	from: @(#)types.h	7.5 (Berkeley) 3/9/91
+ * 将平台特定的类型定义为我们通用的类型格式
  */
 
 #ifndef	_I386_INT_TYPES_H_

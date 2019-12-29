@@ -1,4 +1,4 @@
-/* Implementation of CPU local variables generics */
+/* Implementation of CPU local variables generics cpu 本地变量 */
 #ifndef __CPULOCALS_H__
 #define __CPULOCALS_H__
 
@@ -37,8 +37,8 @@
 extern struct __cpu_local_vars {
 
 /* Process scheduling information and the kernel reentry count. */
-	struct proc *proc_ptr;/* pointer to currently running process */
-	struct proc *bill_ptr;/* process to bill for clock ticks */
+	struct proc *proc_ptr;/* pointer to currently running process 当前正在运行的进程 */
+	struct proc *bill_ptr;/* process to bill for clock ticks 用于计算时钟滴答数的进程 */
 	struct proc idle_proc;/* stub for an idle process */
 
 /* 

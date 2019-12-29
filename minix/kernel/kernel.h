@@ -49,7 +49,7 @@
 #ifndef CONFIG_SMP
 /* We only support 1 cpu now */
 #define CONFIG_MAX_CPUS	1
-#define cpuid		0
+#define cpuid		0 /* 只支持一个cpu 因此为0 */
 /* this is always true on an uniprocessor */
 #define cpu_is_bsp(x) 1
 

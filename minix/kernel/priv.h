@@ -1,7 +1,8 @@
 #ifndef PRIV_H
 #define PRIV_H
 
-/* Declaration of the system privileges structure. It defines flags, system 
+/* 权限结构体的声明和基本操作
+ * Declaration of the system privileges structure. It defines flags, system
  * call masks, an synchronous alarm timer, I/O privileges, pending hardware 
  * interrupts and notifications, and so on.
  * System processes each get their own structure with properties, whereas all 
@@ -19,9 +20,9 @@
 #include "kernel/ipc_filter.h"
 
 struct priv {
-  proc_nr_t s_proc_nr;		/* number of associated process */
-  sys_id_t s_id;		/* index of this system structure */
-  short s_flags;		/* PREEMTIBLE, BILLABLE, etc. */
+  proc_nr_t s_proc_nr;		/* number of associated process 相关进程数 */
+  sys_id_t s_id;		/* index of this system structure 权限结构体下标 */
+  short s_flags;		/* PREEMTIBLE, BILLABLE, etc. see const.h */
   int s_init_flags;             /* initialization flags given to the process. */
 
   /* Asynchronous sends */
@@ -31,7 +32,7 @@ struct priv {
 				 */
   endpoint_t s_asynendpoint;    /* the endpoint the asyn table belongs to. */
 
-  short s_trap_mask;		/* allowed system call traps */
+  short s_trap_mask;		/* allowed system call traps see kernel/priv.h */
   sys_map_t s_ipc_to;		/* allowed destination processes */
 
   /* allowed kernel calls */
@@ -39,8 +40,8 @@ struct priv {
 
   endpoint_t s_sig_mgr;		/* signal manager for system signals */
   endpoint_t s_bak_sig_mgr;	/* backup signal manager for system signals */
-  sys_map_t s_notify_pending;  	/* bit map with pending notifications */
-  sys_map_t s_asyn_pending;	/* bit map with pending asyn messages */
+  sys_map_t s_notify_pending;  	/* bit map with pending notifications 等待通知的位图 */
+  sys_map_t s_asyn_pending;	/* bit map with pending asyn messages 等待异步消息的位图 */
   irq_id_t s_int_pending;	/* pending hardware interrupts */
   sigset_t s_sig_pending;	/* pending signals */
   ipc_filter_t *s_ipcf;         /* ipc filter (NULL when no filter is set) */
@@ -77,8 +78,8 @@ struct priv {
 #define END_DYN_PRIV_ADDR          END_PRIV_ADDR
 
 #define priv_addr(i)      (ppriv_addr)[(i)]
-#define priv_id(rp)	  ((rp)->p_priv->s_id)
-#define priv(rp)	  ((rp)->p_priv)
+#define priv_id(rp)	  ((rp)->p_priv->s_id) /* */
+#define priv(rp)	  ((rp)->p_priv) /* 获取进程的权限结构体 */
 
 #define id_to_nr(id)	priv_addr(id)->s_proc_nr
 #define nr_to_id(nr)    priv(proc_addr(nr))->s_id
@@ -91,8 +92,8 @@ struct priv {
  * indexing the psys_addr array, while accessing an element i requires a 
  * multiplication with sizeof(struct sys) to determine the address. 
  */
-EXTERN struct priv priv[NR_SYS_PROCS];		/* system properties table */
-EXTERN struct priv *ppriv_addr[NR_SYS_PROCS];	/* direct slot pointers */
+EXTERN struct priv priv[NR_SYS_PROCS];		/* system properties table 系统属性表 */
+EXTERN struct priv *ppriv_addr[NR_SYS_PROCS];	/* direct slot pointers 直接插槽指针 */
 
 /* Make sure the system can boot. The following sanity check verifies that
  * the system privileges table is large enough for the number of processes

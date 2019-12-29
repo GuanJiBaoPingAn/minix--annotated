@@ -1,4 +1,6 @@
-/* This file contains the scheduling policy for SCHED
+/* 该文件时调度器的调度策略
+ *
+ * This file contains the scheduling policy for SCHED
  *
  * The entry points are:
  *   do_noquantum:        Called on behalf of process' that run out of quantum
@@ -15,13 +17,13 @@
 
 static unsigned balance_timeout;
 
-#define BALANCE_TIMEOUT	5 /* how often to balance queues in seconds */
+#define BALANCE_TIMEOUT	5 /* how often to balance queues in seconds 平衡队列的超时时间（秒） */
 
 static int schedule_process(struct schedproc * rmp, unsigned flags);
 
-#define SCHEDULE_CHANGE_PRIO	0x1
-#define SCHEDULE_CHANGE_QUANTUM	0x2
-#define SCHEDULE_CHANGE_CPU	0x4
+#define SCHEDULE_CHANGE_PRIO	0x1 /* 调度器改变优先级 */
+#define SCHEDULE_CHANGE_QUANTUM	0x2 /* 调度器改变调度量 */
+#define SCHEDULE_CHANGE_CPU	0x4 /* 调度器改变cpu */
 
 #define SCHEDULE_CHANGE_ALL	(	\
 		SCHEDULE_CHANGE_PRIO	|	\
@@ -40,11 +42,12 @@ static int schedule_process(struct schedproc * rmp, unsigned flags);
 
 #define DEFAULT_USER_TIME_SLICE 200
 
-/* processes created by RS are sysytem processes */
+/* processes created by RS are sysytem processes 再生服务器RS 创建的进程是系统进程 */
 #define is_system_proc(p)	((p)->parent == RS_PROC_NR)
 
 static unsigned cpu_proc[CONFIG_MAX_CPUS];
 
+/* 选择负载最小的cpu */
 static void pick_cpu(struct schedproc * proc)
 {
 #ifdef CONFIG_SMP
@@ -165,12 +168,13 @@ int do_start_scheduling(message *m_ptr)
 		return EINVAL;
 	}
 
-	/* Inherit current priority and time slice from parent. Since there
+	/* 从父进程继承优先级和时间片。
+	 * Inherit current priority and time slice from parent. Since there
 	 * is currently only one scheduler scheduling the whole system, this
 	 * value is local and we assert that the parent endpoint is valid */
 	if (rmp->endpoint == rmp->parent) {
 		/* We have a special case here for init, which is the first
-		   process scheduled, and the parent of itself. */
+		   process scheduled, and the parent of itself. 特殊情况 */
 		rmp->priority   = USER_Q;
 		rmp->time_slice = DEFAULT_USER_TIME_SLICE;
 
@@ -189,8 +193,9 @@ int do_start_scheduling(message *m_ptr)
 	switch (m_ptr->m_type) {
 
 	case SCHEDULING_START:
-		/* We have a special case here for system processes, for which
-		 * quanum and priority are set explicitly rather than inherited 
+		/* 特殊情况，进程是系统继承，显示设置优先级和调度量
+		 * We have a special case here for system processes, for which
+		 * quantum and priority are set explicitly rather than inherited
 		 * from the parent */
 		rmp->priority   = rmp->max_priority;
 		rmp->time_slice = m_ptr->m_lsys_sched_scheduling_start.quantum;

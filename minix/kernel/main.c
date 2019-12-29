@@ -1,4 +1,7 @@
-/* This file contains the main program of MINIX as well as its shutdown code.
+/* 该文件包含了MINIX 的主要程序和关闭代码。main() 函数初始化系统并启动进程表，终端向量，
+ * 调度任务初始化。
+ * shutdown() 函数启相反效果，关闭MINIX
+ * This file contains the main program of MINIX as well as its shutdown code.
  * The routine main() initializes the system and starts the ball rolling by
  * setting up the process table, interrupt vectors, and scheduling each task 
  * to run to initialize itself.
@@ -34,7 +37,7 @@ char *** _penviron;
 
 /* Prototype declarations for PRIVATE functions. */
 static void announce(void);
-
+/* 启动完成 bootstrap finish */
 void bsp_finish_booting(void)
 {
   int i;
@@ -48,7 +51,8 @@ void bsp_finish_booting(void)
   krandom.random_sources = RANDOM_SOURCES;
   krandom.random_elements = RANDOM_ELEMENTS;
 
-  /* MINIX is now ready. All boot image processes are on the ready queue.
+  /* MINIX 准备完成。所有启动镜像进程都在ready 队列里。返回汇编代码运行当前进程
+   * MINIX is now ready. All boot image processes are on the ready queue.
    * Return to the assembly code to start running the current process. 
    */
   
@@ -57,20 +61,20 @@ void bsp_finish_booting(void)
   get_cpulocal_var(proc_ptr) = get_cpulocal_var_ptr(idle_proc);
   announce();				/* print MINIX startup banner */
 
-  /*
+  /* cpu 本地队列，
    * we have access to the cpu local run queue, only now schedule the processes.
    * We ignore the slots for the former kernel tasks
    */
   for (i=0; i < NR_BOOT_PROCS - NR_TASKS; i++) {
 	RTS_UNSET(proc_addr(i), RTS_PROC_STOP);
   }
-  /*
+  /* 启用计时器中断和时钟任务
    * Enable timer interrupts and clock task on the boot CPU.  First reset the
    * CPU accounting values, as the timer initialization (indirectly) uses them.
    */
-  cycles_accounting_init();
+  cycles_accounting_init(); /* arch_clock.c */
 
-  if (boot_cpu_init_timer(system_hz)) {
+  if (boot_cpu_init_timer(system_hz)) { /* clock.c */
 	  panic("FATAL : failed to initialize timer interrupts, "
 			  "cannot continue without any clock source!");
   }
@@ -115,7 +119,7 @@ void bsp_finish_booting(void)
 void kmain(kinfo_t *local_cbi)
 {
 /* Start the ball rolling. */
-  struct boot_image *ip;	/* boot image pointer */
+  struct boot_image *ip;	/* boot image pointer 启动镜像指针 */
   register struct proc *rp;	/* process pointer */
   register int i, j;
   static int bss_test;
@@ -150,7 +154,7 @@ void kmain(kinfo_t *local_cbi)
  
    DEBUGEXTRA(("main()\n"));
 
-  /* Clear the process table. Anounce each slot as empty and set up mappings
+  /* Clear the process table. Announce each slot as empty and set up mappings
    * for proc_addr() and proc_nr() macros. Do the same for the table with
    * privilege structures for the system processes and the ipc filter pool.
    */
@@ -163,7 +167,7 @@ void kmain(kinfo_t *local_cbi)
 
   /* Set up proc table entries for processes in boot image. */
   for (i=0; i < NR_BOOT_PROCS; ++i) {
-	int schedulable_proc;
+	int schedulable_proc; /* 进程能否马上进行调度 */
 	proc_nr_t proc_nr;
 	int ipc_to_m, kcalls;
 	sys_map_t map;
@@ -185,7 +189,11 @@ void kmain(kinfo_t *local_cbi)
 	
 	reset_proc_accounting(rp);
 
-	/* See if this process is immediately schedulable.
+	/* 如果进程马上可以调度。
+	 * 则设置权限并允许运行。只有内核任务和系统的根进程可以马上运行。
+	 * 在根进程设置完成权限后其他进程可以进行调度
+	 *
+	 * See if this process is immediately schedulable.
 	 * In that case, set its privileges now and allow it to run.
 	 * Only kernel tasks and the root system process get to run immediately.
 	 * All the other system processes are inhibited from running by the

@@ -39,6 +39,7 @@
 #include <machine/int_types.h>
 
 /*
+ * 基础类型，在多处使用时，在此处定义
  * Types which are fundamental to the implementation and may appear in
  * more than one standard header are defined here.  Standard headers
  * then use:

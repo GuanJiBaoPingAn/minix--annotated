@@ -6,7 +6,8 @@
 
 #ifndef __ASSEMBLY__
 
-/* Here is the declaration of the process table.  It contains all process
+/* 声明了进程表。包含了所有进程数据，包括寄存器，flag，调度优先级，内存映射，审计，IPC
+ * Here is the declaration of the process table.  It contains all process
  * data, including registers, flags, scheduling priority, memory map, 
  * accounting, message passing (IPC) information, and so on. 
  *
@@ -20,19 +21,19 @@
 #include "priv.h"
 
 struct proc {
-  struct stackframe_s p_reg;	/* process' registers saved in stack frame */
-  struct segframe p_seg;	/* segment descriptors */
-  proc_nr_t p_nr;		/* number of this process (for fast access) */
-  struct priv *p_priv;		/* system privileges structure */
-  volatile u32_t p_rts_flags;	/* process is runnable only if zero */
-  volatile u32_t p_misc_flags;	/* flags that do not suspend the process */
+  struct stackframe_s p_reg;	/* process' registers saved in stack frame 进程寄存器保留在栈帧 */
+  struct segframe p_seg;	/* segment descriptors 段描述符 */
+  proc_nr_t p_nr;		/* number of this process (for fast access) 进程编号，用于从 */
+  struct priv *p_priv;		/* system privileges structure 系统的权限结构体 */
+  volatile u32_t p_rts_flags;	/* 进程的请求状态标识 process is runnable only if zero 进程能否运行flag 0 */
+  volatile u32_t p_misc_flags;	/* 不会暂停进程的flag flags that do not suspend the process */
 
   char p_priority;		/* current process priority */
-  u64_t p_cpu_time_left;	/* time left to use the cpu */
+  u64_t p_cpu_time_left;	/* time left to use the cpu 剩余可用cpu 时间 */
   unsigned p_quantum_size_ms;	/* assigned time quantum in ms
 				   FIXME remove this */
   struct proc *p_scheduler;	/* who should get out of quantum msg */
-  unsigned p_cpu;		/* what CPU is the process running on */
+  unsigned p_cpu;		/* what CPU is the process running on 该进程在哪个cpu */
 #ifdef CONFIG_SMP
   bitchunk_t p_cpu_mask[BITMAP_CHUNKS(CONFIG_MAX_CPUS)]; /* what CPUs is the
 							    process allowed to
@@ -44,20 +45,20 @@ struct proc {
 				 */
 #endif
 
-  /* Accounting statistics that get passed to the process' scheduler */
+  /* Accounting statistics that get passed to the process' scheduler 审计信息 */
   struct {
-	u64_t enter_queue;	/* time when enqueued (cycles) */
-	u64_t time_in_queue;	/* time spent in queue */
-	unsigned long dequeues;
+	u64_t enter_queue;	/* time when enqueued (cycles) 入队时间 */
+	u64_t time_in_queue;	/* time spent in queue 在队列中的时间 */
+	unsigned long dequeues; /* 出队次数 */
 	unsigned long ipc_sync;
 	unsigned long ipc_async;
-	unsigned long preempted;
+	unsigned long preempted; /* 被抢占的次数 */
   } p_accounting;
 
-  clock_t p_dequeued;		/* uptime at which process was last dequeued */
+  clock_t p_dequeued;		/* uptime at which process was last dequeued 出队时间为启动后多久 */
 
-  clock_t p_user_time;		/* user time in ticks */
-  clock_t p_sys_time;		/* sys time in ticks */
+  clock_t p_user_time;		/* user time in ticks 在用户时间的滴答数 */
+  clock_t p_sys_time;		/* sys time in ticks 在系统时间的滴答数 */
 
   clock_t p_virt_left;		/* number of ticks left on virtual timer */
   clock_t p_prof_left;		/* number of ticks left on profile timer */
@@ -72,20 +73,21 @@ struct proc {
   struct proc *p_nextready;	/* pointer to next ready process */
   struct proc *p_caller_q;	/* head of list of procs wishing to send */
   struct proc *p_q_link;	/* link to next proc wishing to send */
-  endpoint_t p_getfrom_e;	/* from whom does process want to receive? */
-  endpoint_t p_sendto_e;	/* to whom does process want to send? */
+  endpoint_t p_getfrom_e;	/* from whom does process want to receive? 消息来源进程 */
+  endpoint_t p_sendto_e;	/* to whom does process want to send? 消息发送目标进程 */
 
   sigset_t p_pending;		/* bit map for pending kernel signals */
 
   char p_name[PROC_NAME_LEN];	/* name of the process, including \0 */
 
-  endpoint_t p_endpoint;	/* endpoint number, generation-aware */
+  endpoint_t p_endpoint;	/* endpoint number, generation-aware 该进程的端点 */
 
   message p_sendmsg;		/* Message from this process if SENDING */
-  message p_delivermsg;		/* Message for this process if MF_DELIVERMSG */
-  vir_bytes p_delivermsg_vir;	/* Virtual addr this proc wants message at */
+  message p_delivermsg;		/* Message for this process if MF_DELIVERMSG 状态为MF_DELIVERMSG 时的消息内容 */
+  vir_bytes p_delivermsg_vir;	/* Virtual addr this proc wants message at 进程希望消息储存的地址 */
 
-  /* If handler functions detect a process wants to do something with
+  /* 当处理函数检测到进程想使用不存在的内存时，VM 会进行修复。
+   * If handler functions detect a process wants to do something with
    * memory that isn't present, VM has to fix it. Until it has asked
    * what needs to be done and fixed it, save necessary state here.
    *
@@ -124,7 +126,7 @@ struct proc {
   } p_vmrequest;
 
   int p_found;	/* consistency checking variables */
-  int p_magic;		/* check validity of proc pointers */
+  int p_magic;		/* check validity of proc pointers 用于校验进程的指针 */
 
   /* if MF_SC_DEFER is set, this struct is valid and contains the
    * do_ipc() arguments that are still to be executed
@@ -138,19 +140,19 @@ struct proc {
 
 #endif /* __ASSEMBLY__ */
 
-/* Bits for the runtime flags. A process is runnable iff p_rts_flags == 0. */
-#define RTS_SLOT_FREE	0x01	/* process slot is free */
-#define RTS_PROC_STOP	0x02	/* process has been stopped */
-#define RTS_SENDING	0x04	/* process blocked trying to send */
-#define RTS_RECEIVING	0x08	/* process blocked trying to receive */
+/* p_rts_flags 中的各种flag Bits for the runtime flags. A process is runnable if p_rts_flags == 0. */
+#define RTS_SLOT_FREE	0x01	/* process slot is free 进程插槽为空 */
+#define RTS_PROC_STOP	0x02	/* process has been stopped 进程停止了 */
+#define RTS_SENDING	0x04	/* process blocked trying to send 进程在发送消息时阻塞 */
+#define RTS_RECEIVING	0x08	/* process blocked trying to receive 进程在接收消息时阻塞 */
 #define RTS_SIGNALED	0x10	/* set when new kernel signal arrives */
 #define RTS_SIG_PENDING	0x20	/* unready while signal being processed */
 #define RTS_P_STOP	0x40	/* set when process is being traced */
-#define RTS_NO_PRIV	0x80	/* keep forked system process from running */
-#define RTS_NO_ENDPOINT	0x100	/* process cannot send or receive messages */
-#define RTS_VMINHIBIT	0x200	/* not scheduled until pagetable set by VM */
+#define RTS_NO_PRIV	0x80	/* keep forked system process from running fork 的进程在运行 */
+#define RTS_NO_ENDPOINT	0x100	/* process cannot send or receive messages 进程无法发送和接收消息 */
+#define RTS_VMINHIBIT	0x200	/* not scheduled until pagetable set by VM 在VM 设置完成pagetable 前不能调度 */
 #define RTS_PAGEFAULT	0x400	/* process has unhandled pagefault */
-#define RTS_VMREQUEST	0x800	/* originator of vm memory request */
+#define RTS_VMREQUEST	0x800	/* originator of vm memory request 表进程了正在请求VM */
 #define RTS_VMREQTARGET	0x1000	/* target of vm memory request */
 #define RTS_PREEMPTED	0x4000	/* this process was preempted by a higher
 				   priority process and we should pick a new one
@@ -158,14 +160,15 @@ struct proc {
 				   returned to the front of their current
 				   priority queue if they are still runnable
 				   before we pick a new one
+				   该进程被更高优先级的进程给抢占了
 				 */
 #define RTS_NO_QUANTUM	0x8000	/* process ran out of its quantum and we should
 				   pick a new one. Process was dequeued and
 				   should be enqueued at the end of some run
-				   queue again */
-#define RTS_BOOTINHIBIT	0x10000	/* not ready until VM has made it */
+				   queue again 进程没有时间片 */
+#define RTS_BOOTINHIBIT	0x10000	/* not ready until VM has made it 在VM 前不能准备完成 */
 
-/* A process is runnable iff p_rts_flags == 0. */
+/* A process is runnable if p_rts_flags == 0. 进程只有在 p_rts_flags == 0 才是可运行的（没有请求） */
 #define rts_f_is_runnable(flg)	((flg) == 0)
 #define proc_is_runnable(p)	(rts_f_is_runnable((p)->p_rts_flags))
 
@@ -198,11 +201,12 @@ struct proc {
 	)
 
 /* These runtime flags can be tested and manipulated by these macros. */
-
+/* 进程当前的p_rts_flags 是否为给定的f */
 #define RTS_ISSET(rp, f) (((rp)->p_rts_flags & (f)) == (f))
 
 
-/* Set flag and dequeue if the process was runnable. */
+/* 将进程p_rts_flags 设置为给定f，如果由可运行状态变为不可运行状态则将进程出队
+ * Set flag and dequeue if the process was runnable. */
 #define RTS_SET(rp, f)							\
 	do {								\
 		const int rts = (rp)->p_rts_flags;			\
@@ -211,8 +215,9 @@ struct proc {
 			dequeue(rp);					\
 		}							\
 	} while(0)
-
-/* Clear flag and enqueue if the process was not runnable but is now. */
+/
+/* 将进程p_rts_flags 取消设置为给定f，如果由不可运行状态变为可运行状态则将进程入队
+ * Clear flag and enqueue if the process was not runnable but is now. */
 #define RTS_UNSET(rp, f) 						\
 	do {								\
 		int rts;						\
@@ -231,20 +236,21 @@ struct proc {
 	} while(0)
 
 /* Misc flags */
-#define MF_REPLY_PEND	0x001	/* reply to IPC_REQUEST is pending */
+#define MF_REPLY_PEND	0x001	/* reply to IPC_REQUEST is pending 等待请求的回复 */
 #define MF_VIRT_TIMER	0x002	/* process-virtual timer is running */
 #define MF_PROF_TIMER	0x004	/* process-virtual profile timer is running */
 #define MF_KCALL_RESUME 0x008	/* processing a kernel call was interrupted,
 				   most likely because we need VM to resolve a
 				   problem or a long running copy was preempted.
 				   We need to resume the kernel call execution
-				   now
+				   now 处理内核调用时被打断，最可能时因为我们需要VM 解决问题或进程被抢占。
+				   我们需要恢复内核调用继续执行
 				 */
-#define MF_DELIVERMSG	0x040	/* Copy message for him before running */
+#define MF_DELIVERMSG	0x040	/* Copy message for him before running 在运行前复制消息 */
 #define MF_SIG_DELAY	0x080	/* Send signal when no longer sending */
-#define MF_SC_ACTIVE	0x100	/* Syscall tracing: in a system call now */
-#define MF_SC_DEFER	0x200	/* Syscall tracing: deferred system call */
-#define MF_SC_TRACE	0x400	/* Syscall tracing: trigger syscall events */
+#define MF_SC_ACTIVE	0x100	/* Syscall tracing: in a system call now 系统调用追踪：正在进行系统调用 */
+#define MF_SC_DEFER	0x200	/* Syscall tracing: deferred system call 系统调用追踪：系统调用解引用 */
+#define MF_SC_TRACE	0x400	/* Syscall tracing: trigger syscall events 系统调用追踪：触发系统调用事件 */
 #define MF_FPU_INITIALIZED	0x1000  /* process already used math, so fpu
 					 * regs are significant (initialized)*/
 #define MF_SENDING_FROM_KERNEL	0x2000 /* message of this process is from kernel */
@@ -258,7 +264,7 @@ struct proc {
 				    because of VM modifying the sender's address
 				    space*/
 #define MF_STEP		 0x40000 /* Single-step process */
-#define MF_MSGFAILED	 0x80000
+#define MF_MSGFAILED	 0x80000 /* 消息传递失败 */
 #define MF_NICED	0x100000 /* user has lowered max process priority */
 
 /* Magic process table addresses. */
@@ -280,7 +286,7 @@ struct proc {
 
 #ifndef __ASSEMBLY__
 
-EXTERN struct proc proc[NR_TASKS + NR_PROCS];	/* process table */
+EXTERN struct proc proc[NR_TASKS + NR_PROCS];	/* process table 进程表 */
 
 int mini_send(struct proc *caller_ptr, endpoint_t dst_e, message *m_ptr,
 	int flags);

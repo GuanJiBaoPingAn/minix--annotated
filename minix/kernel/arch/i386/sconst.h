@@ -54,7 +54,7 @@
 	mov	%ebx, BXREG(pptr)		;\
 	mov	%esi, SIREG(pptr)		;\
 	mov	%edi, DIREG(pptr)		;
-
+/*恢复到进程指向内存的寄存器信息 */
 #define RESTORE_GP_REGS(pptr)	\
 	movl	AXREG(pptr), %eax		;\
 	movl	CXREG(pptr), %ecx		;\

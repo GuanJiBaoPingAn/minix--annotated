@@ -2,7 +2,7 @@
 #include <machine/asm.h>
 
 ENTRY(_do_kernel_call_intr)
-	/* pass the message pointer to kernel in the %eax register */
+	/* 將消息的指针传入eax寄存器中 pass the message pointer to kernel in the %eax register */
 	movl	4(%esp), %eax
 	int	$KERVEC_INTR
 	ret

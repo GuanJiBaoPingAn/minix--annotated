@@ -139,28 +139,28 @@
 #define BOARDVARNAME		"board"
 #define SERBAUDVARNAME		"cttybaud"
 
-/* Bits for s_flags in the privilege structure. */
-#define PREEMPTIBLE     0x002   /* kernel tasks are not preemptible */
-#define BILLABLE        0x004   /* some processes are not billable */
-#define DYN_PRIV_ID     0x008   /* privilege id assigned dynamically */
+/* Bits for s_flags in the privilege structure. priv.s_flags  */
+#define PREEMPTIBLE     0x002   /* kernel tasks are not preemptible 可抢占 */
+#define BILLABLE        0x004   /* some processes are not billable 可支付？ */
+#define DYN_PRIV_ID     0x008   /* privilege id assigned dynamically 动态设置权限ID */
  
-#define SYS_PROC        0x010   /* system processes have own priv structure */
-#define CHECK_IO_PORT   0x020   /* check if I/O request is allowed */
-#define CHECK_IRQ       0x040   /* check if IRQ can be used */
-#define CHECK_MEM       0x080   /* check if (VM) mem map request is allowed */
-#define ROOT_SYS_PROC   0x100   /* this is a root system process instance */
-#define VM_SYS_PROC     0x200   /* this is a vm system process instance */
-#define LU_SYS_PROC     0x400   /* this is a live updated sys proc instance */
-#define RST_SYS_PROC    0x800   /* this is a restarted sys proc instance */
+#define SYS_PROC        0x010   /* system processes have own priv structure 系统进程 */
+#define CHECK_IO_PORT   0x020   /* check if I/O request is allowed 检查能否进行IO请求  */
+#define CHECK_IRQ       0x040   /* check if IRQ can be used 检查IRQ能否使用 */
+#define CHECK_MEM       0x080   /* check if (VM) mem map request is allowed 检查是否能使用mem map */
+#define ROOT_SYS_PROC   0x100   /* this is a root system process instance 表明是系统根进程 */
+#define VM_SYS_PROC     0x200   /* this is a vm system process instance 表明是系统VM 进程 */
+#define LU_SYS_PROC     0x400   /* this is a live updated sys proc instance 表明是系统活更新进程 */
+#define RST_SYS_PROC    0x800   /* this is a restarted sys proc instance 表明是系统重启进程 */
 
-/* Values for the "verbose" boot monitor variable */
+/* Values for the "verbose" boot monitor variable 系统启动时打印信息级别 */
 #define VERBOSEBOOT_QUIET 0
 #define VERBOSEBOOT_BASIC 1
 #define VERBOSEBOOT_EXTRA 2
 #define VERBOSEBOOT_MAX   3
 #define VERBOSEBOOTVARNAME "verbose"
 
-/* magic value to put in struct proc entries for sanity checks. */
+/* 用于校验进程的魔数 magic value to put in struct proc entries for sanity checks. */
 #define PMAGIC 0xC0FFEE1
 
 /* MINIX_KERNFLAGS flags */

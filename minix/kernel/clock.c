@@ -293,7 +293,7 @@ static void load_update(void)
 
 int boot_cpu_init_timer(unsigned freq)
 {
-	if (init_local_timer(freq))
+	if (init_local_timer(freq)) /* arch_clock.c */
 		return -1;
 
 	if (register_local_timer_handler(

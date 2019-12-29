@@ -31,6 +31,7 @@
  * SUCH DAMAGE.
  *
  *	@(#)cdefs.h	8.8 (Berkeley) 1/9/95
+ * 编译器及C 相关的宏
  */
 
 #ifndef	_SYS_CDEFS_H_

@@ -1434,7 +1434,7 @@ typedef struct {
 	int quantum;
 
 	uint8_t padding[40];
-} mess_lsys_sched_scheduling_start;
+} mess_lsys_sched_scheduling_start; /* 系统开始调度消息结构 */
 _ASSERT_MSG_SIZE(mess_lsys_sched_scheduling_start);
 
 typedef struct {
@@ -2401,8 +2401,8 @@ typedef struct {
 _ASSERT_MSG_SIZE(mess_vmmcp_reply);
 
 typedef struct noxfer_message {
-	endpoint_t m_source;		/* who sent the message */
-	int m_type;			/* what kind of message is it */
+	endpoint_t m_source;		/* 消息的发送源 who sent the message */
+	int m_type;			/* 消息类型 what kind of message is it */
 	union {
 		mess_u8			m_u8;
 		mess_u16		m_u16;

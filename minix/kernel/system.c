@@ -43,7 +43,8 @@
 #include <minix/endpoint.h>
 #include <minix/safecopies.h>
 
-/* Declaration of the call vector that defines the mapping of system calls
+/* 声明系统调用和处理函数映射表。表在system_init() 中初始化
+ * Declaration of the call vector that defines the mapping of system calls
  * to handler functions. The vector is initialized in sys_init() with map(),
  * which makes sure the system call numbers are ok. No space is allocated,
  * because the dummy is declared extern. If an illegal call is given, the

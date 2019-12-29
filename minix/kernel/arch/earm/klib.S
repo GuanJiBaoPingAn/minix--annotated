@@ -56,7 +56,7 @@ LABEL(__copy_msg_from_user_end)
 /*===========================================================================*/
 /*
  * void copy_msg_to_user(message * src, message * user_mbuf);
- *
+ * 从内核缓存复制64字节的消息到用户空间
  * Copies a message of 64 bytes to user process space from a kernel buffer.
  *
  * All the other copy_msg_from_user() comments apply here as well!

@@ -13,7 +13,7 @@
 EXTERN unsigned ncpus;
 /* Number of virtual strands per physical core */
 EXTERN unsigned ht_per_core;
-/* which cpu is bootstrapping */
+/* which cpu is bootstrapping 启动cpu */
 EXTERN unsigned bsp_cpu_id;
 
 #define cpu_is_bsp(cpu)	(bsp_cpu_id == cpu)

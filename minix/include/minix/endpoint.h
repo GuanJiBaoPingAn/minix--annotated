@@ -8,6 +8,14 @@
 #include <minix/type.h>
 
 /*
+ * 端点，分为两部分：进程插槽和生成数。
+ * 进程插槽用于在进程表中区分进程，>= 0 时为用户进程，< 0 时为内核进程。
+ * 最大范围为[-MAX_NR_TASKS,MAX_NR_PROCS>，目前使用范围为[-NR_TASKS,NR_PROCS>
+ *
+ * 生成数为每个插槽一个的数，当一个插槽被一个新的进程复用时+1。生成数最小化端点使用死的的进程。
+ *
+ * 端点分为两部分，当生成数为0时，端点号和进程插槽好相同。
+ *
  * Endpoints are split into two parts: a process slot and a generation number.
  *
  * The process slot number identifies the slot in various process tables.
@@ -50,7 +58,7 @@
 #define _ENDPOINT_MAX_GENERATION	(INT_MAX/_ENDPOINT_GENERATION_SIZE-1)
 #define _ENDPOINT_SLOT_TOP	(_ENDPOINT_GENERATION_SIZE-MAX_NR_TASKS)
 
-/* The special endpoint numbers, and the resulting maximum slot number. */
+/* 特别的端点号 The special endpoint numbers, and the resulting maximum slot number. */
 #define ANY		((endpoint_t) (_ENDPOINT_SLOT_TOP - 1))
 #define NONE		((endpoint_t) (_ENDPOINT_SLOT_TOP - 2))
 #define SELF		((endpoint_t) (_ENDPOINT_SLOT_TOP - 3))

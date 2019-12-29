@@ -1,4 +1,5 @@
-/* This file contains some utility routines for SCHED.
+/* SCHED 使用的工具集
+ * This file contains some utility routines for SCHED.
  *
  * The entry points are:
  *   no_sys:		called for invalid system call numbers

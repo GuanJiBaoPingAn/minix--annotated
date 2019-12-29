@@ -1,7 +1,8 @@
 #ifndef GLO_H
 #define GLO_H
 
-/* Global variables used in the kernel. This file contains the declarations;
+/* 内核中使用的全局变量。
+ * Global variables used in the kernel. This file contains the declarations;
  * storage space for the variables is allocated in table.c, because EXTERN is
  * defined as extern unless the _TABLE definition is seen. We rely on the 
  * compiler's default initialization (0) for several global variables. 
@@ -18,17 +19,17 @@
 #include "config.h"
 #include "debug.h"
 
-/* Kernel information structures. This groups vital kernel information. */
-extern struct kinfo kinfo;		  /* kernel information for services */
-extern struct machine machine;		  /* machine info for services */
-extern struct kmessages kmessages;  	  /* diagnostic messages in kernel */
-extern struct loadinfo loadinfo;	  /* status of load average */
-extern struct kuserinfo kuserinfo;	  /* kernel information for users */
+/* Kernel information structures. This groups vital kernel information. 内核信息 */
+extern struct kinfo kinfo;		  /* kernel information for services 内核信息 */
+extern struct machine machine;		  /* machine info for services 机器信息 */
+extern struct kmessages kmessages;  	  /* diagnostic messages in kernel 内核诊断信息 */
+extern struct loadinfo loadinfo;	  /* status of load average 平均负载信息 */
+extern struct kuserinfo kuserinfo;	  /* kernel information for users 用户看的内核信息 */
 extern struct arm_frclock arm_frclock;	  /* ARM free-running timer info */
-extern struct kclockinfo kclockinfo;	  /* clock information */
+extern struct kclockinfo kclockinfo;	  /* clock information 时钟信息 */
 extern struct minix_kerninfo minix_kerninfo;
 
-EXTERN struct k_randomness krandom; 	/* gather kernel random information */
+EXTERN struct k_randomness krandom; 	/* gather kernel random information 内核随机信息集合 */
 
 EXTERN vir_bytes minix_kerninfo_user;
 
@@ -37,8 +38,8 @@ EXTERN vir_bytes minix_kerninfo_user;
 
 #define system_hz (kclockinfo.hz)		/* HZ value (alias) */
 
-/* Process scheduling information and the kernel reentry count. */
-EXTERN struct proc *vmrequest;  /* first process on vmrequest queue */
+/* Process scheduling information and the kernel reentry count. 进程调度信息和内核重入计数 */
+EXTERN struct proc *vmrequest;  /* first process on vmrequest queue vm请求队列的第一个进程 */
 EXTERN unsigned lost_ticks;	/* clock ticks counted outside clock task */
 EXTERN char *ipc_call_names[IPCNO_HIGHEST+1]; /* human-readable call names */
 EXTERN struct proc *kbill_kcall; /* process that made kernel call */

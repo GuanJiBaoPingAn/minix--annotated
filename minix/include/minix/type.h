@@ -110,7 +110,7 @@ struct kclockinfo {
   uint32_t _rsvd2;		/* reserved for 64-bit real time */
 #elif BYTE_ORDER == BIG_ENDIAN
   uint32_t _rsvd1;		/* reserved for 64-bit uptime */
-  clock_t uptime;		/* number of clock ticks since system boot */
+  clock_t uptime;		/* number of clock ticks since system boot 系统启动后的滴答数 */
   uint32_t _rsvd2;		/* reserved for 64-bit real time */
   clock_t realtime;		/* real time in clock ticks since boot */
 #else
